@@ -34,6 +34,8 @@
     <script src="{{ 'details-disclosure.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'details-modal.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'search-form.js' | asset_url }}" defer="defer"></script>
+   
+
 
     {%- if settings.animations_reveal_on_scroll -%}
       <script src="{{ 'animations.js' | asset_url }}" defer="defer"></script>
@@ -255,6 +257,7 @@
       }
     {% endstyle %}
 
+    {{ 'custom-featured-product.css' | asset_url | stylesheet_tag }}
     {{ 'base.css' | asset_url | stylesheet_tag }}
     <link rel="stylesheet" href="{{ 'component-cart-items.css' | asset_url }}" media="print" onload="this.media='all'">
 
@@ -307,11 +310,46 @@
       {%- render 'cart-drawer' -%}
     {%- endif -%}
 
+
     {% sections 'header-group' %}
 
-    <main id="MainContent" class="content-for-layout focus-none" role="main" tabindex="-1">
-      {{ content_for_layout }}
-    </main>
+<main id="MainContent" class="content-for-layout focus-none" role="main" tabindex="-1">
+  {{ content_for_layout }}
+</main>
+
+<!-- ✅ Custom Cart Drawer Outside Main -->
+<div id="cart-drawer" class="cart-drawer">
+  {% section 'custom-cart-drawer' %}
+</div>
+
+<!-- ✅ JS functions (open/close) -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const cartIcon = document.getElementById('cart-icon');
+
+    if (cartIcon) {
+      cartIcon.addEventListener('click', function (event) {
+        event.preventDefault(); // Stop redirect to /cart
+        openCartDrawer(); // Show cart drawer
+      });
+    }
+  });
+
+  function openCartDrawer() {
+    const cartDrawer = document.getElementById('cart-drawer');
+    if (cartDrawer) {
+      cartDrawer.classList.add('is-visible');
+    }
+  }
+
+  function closeCartDrawer() {
+    const cartDrawer = document.getElementById('cart-drawer');
+    if (cartDrawer) {
+      cartDrawer.classList.remove('is-visible');
+    }
+  }
+</script>
+
 
     {% sections 'footer-group' %}
 
@@ -372,5 +410,38 @@
     {%- if settings.cart_type == 'drawer' -%}
       <script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
+    {{ 'featured-product.js' | asset_url | script_tag }}
+<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script> -->
+{% raw %}
+<script>
+  const sliderTrack = document.getElementById('sliderTrack');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const imgHeight = 200; // each image height
+  const visibleCount = 3;
+  const totalImages = sliderTrack.children.length;
+  let index = 0;
+
+  nextBtn.onclick = () => {
+    if (index < totalImages - visibleCount) {
+      index++;
+      updateSlider();
+    }
+  };
+
+  prevBtn.onclick = () => {
+    if (index > 0) {
+      index--;
+      updateSlider();
+    }
+  };
+
+  function updateSlider() {
+    sliderTrack.style.transform = `translateY(-${index * imgHeight}px)`;
+  }
+</script>
+{% endraw %}
+
   </body>
+  
 </html>

@@ -1,0 +1,41 @@
+<div id="cart-drawer-cartpg" class="cart-drawer-cartpage">
+  <!-- Background overlay -->
+  <div class="cart-drawer-overlay" onclick="closeCartDrawer()"></div>
+
+  <div class="cart-drawer-content">
+    <div class="cart-drawer-header">
+      <h2>Your cart Products:</h2>
+      <button onclick="closeCartDrawer()">Close</button>
+    </div>
+
+    <div id="cart-items" class="cart-items">
+      {% for item in cart.items %}
+        <div class="cart-item">
+          <div class="cart-item-image">
+            <img src="{{ item.image | img_url: 'medium' }}" alt="{{ item.title }}" />
+          </div>
+          <div class="cart-item-details">
+            <p>{{ item.quantity }} x {{ item.title }}</p>
+            {% if item.properties %}
+              <p class="cart-item-properties">
+                {% for property in item.properties %}
+                  <span>{{ property[0] }}: {{ property[1] }}</span>
+                {% endfor %}
+              </p>
+            {% endif %}
+            <p class="cart-item-price">{{ item.line_price | money }}</p>
+          </div>
+        </div>
+      {% endfor %}
+
+      {% if cart.item_count == 0 %}
+        <p>Your cart is empty.</p>
+      {% endif %}
+    </div>
+
+    <div class="cart-drawer-footer">
+      <a href="/cart" class="btn btn--primary">Go To Cart</a>
+      <a href="/checkout" class="btn btn--primary">Go To Checkout</a>
+    </div>
+  </div>
+</div>

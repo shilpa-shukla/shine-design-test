@@ -3595,3 +3595,13 @@ details-disclosure > details {
     transform: translateX(100%) scaleX(0);
   }
 }
+/**/
+
+.cart-drawer.hidden {
+  display: none;
+}
+
+.cart-drawer.show {
+  display: block;
+}
+

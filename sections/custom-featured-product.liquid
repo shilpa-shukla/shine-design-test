@@ -1,0 +1,225 @@
+{% schema %}
+{
+  "name": "Custom Featured Product",
+  "tag": "section",
+  "class": "custom-featured-product-section",
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Select Product"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom Featured Product"
+    }
+  ]
+}
+{% endschema %}
+
+{% if section.settings.product %}
+  {% assign product = all_products[section.settings.product] %}
+
+  <featured-product
+    data-product-handle="{{ product.handle }}"
+    data-section-id="{{ section.id }}"
+    class="featured-product-wrapper"
+  >
+
+    <div class="featured-product-container">
+    <div class="product-media-wrapper">
+  <div class="main-media">
+    {% for media in product.media %}
+      <div
+        class="media-item{% if forloop.first %} active{% endif %}"
+        data-media-id="{{ media.id }}"
+        style="{% if forloop.first %}display: block;{% else %}display: none;{% endif %}"
+      >
+       {{ media | media_tag: image_size: '1024x1024' }}
+      </div>
+    {% endfor %}
+  </div>
+      <div class="slied_btn">
+<div class="slider-container">
+  <div class="media-gallery slider-track" id="sliderTrack">
+    {% for media in product.media %}
+      <img
+        class="media-thumbnail{% if forloop.first %} active{% endif %}"
+        src="{{ media | img_url: 'compact' }}"
+        data-media-id="{{ media.id }}"
+        alt="{{ media.alt | escape }}"
+        style="cursor:pointer;"
+      />
+    {% endfor %}
+  </div>
+</div>
+<div class="nav-buttons" style="width: 300px; margin: 10px auto; text-align: center;">
+  <button id="prevBtn" class="cstmbtn">↑ Prev</button>
+  <button id="nextBtn"  class="cstmbtn">↓ Next</button>
+</div>
+      </div>
+</div>
+
+      <!-- 🛒 Product Info -->
+      <div class="product-info">
+        <h1 class="product-title">{{ product.title }}</h1>
+
+        <div class="product-price test">
+          <span class="regular-price">{{ product.price | money }}</span>
+          {% if product.compare_at_price > product.price %}
+            <span class="compare-price">{{ product.compare_at_price | money }}</span>
+          {% endif %}
+        </div>
+
+     <!-- 🧩 Options -->
+<div class="product-options">
+  {% for option in product.options_with_values %}
+    <div class="product-option" data-option-index="{{ forloop.index0 }}">
+      <label>{{ option.name }}</label>
+      <div class="option-values ">
+        {% for value in option.values %}
+          <button {% if option.name == 'Color' %}
+        {% assign color_code = '' %}
+    {% for variant in product.variants %}
+      {% if variant.options contains value %}
+        {% assign color_code = variant.metafields.custom.color_code.value %} 
+        {% break %}
+      {% endif %}
+    {% endfor %}
+style="background-color: {{ color_code }}"
+{% endif %}
+            class="option-button {% if option.name == 'Color'%}colorval {% endif %}"
+            data-value="{{ value }}"
+            data-option-index="{{ forloop.parentloop.index0 }}"
+          >
+{% if option.name == 'Color' %}
+    {% assign color_code = '' %}
+    {% for variant in product.variants %}
+      {% if variant.options contains value %}
+        {% assign color_code = variant.metafields.custom.color_code.value %} 
+        {% break %}
+      {% endif %}
+    {% endfor %}
+
+   <!-- <span class="color-swatch" style="background-color: {{ color_code }}"></span> -->
+
+  {% else %}
+    {{ value }}
+  {% endif %}
+          </button>
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+<div class="error-messages"></div>
+
+        <!-- 🔢 Quantity Selector -->
+        <div class="quantity-selector">
+          <button class="quantity-button" data-action="decrement">-</button>
+          <input type="number" class="quantity-input" value="1" min="1" />
+          <button class="quantity-button" data-action="increment">+</button>
+        </div>
+
+        <!-- 🛍 Add to Cart -->
+        <button class="add-to-cart-button">Add to Cart</button>
+
+        
+      </div>
+    </div>
+
+    <!-- 🧠 Variant JSON -->
+    <script type="application/json">
+      {{ product | json }}
+    </script>
+
+  </featured-product>
+{% else %}
+  <p>Please select a product in the section settings.</p>
+{% endif %}
+
+
+<style>
+.media-thumbnail {
+  opacity: 0.5;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.media-thumbnail.active {
+  opacity: 1;
+  transform: scale(1.05);
+  border-color: #3498db;
+}
+
+.media-item {
+  display: none;
+}
+
+.media-item.active {
+  display: block;
+}
+
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const thumbnails = document.querySelectorAll('.media-thumbnail');
+  const mediaItems = document.querySelectorAll('.main-media .media-item');
+  
+  const variantSelector = document.querySelector('[name="id"]');
+
+  // Function to update the main image and highlight the active thumbnail
+  function updateMediaById(mediaId) {
+    // Loop through media items to show the correct one
+    mediaItems.forEach(item => {
+      const itemMediaId = item.getAttribute('data-media-id');
+      if (itemMediaId === mediaId) {
+        item.style.display = 'block'; // Show the correct media item
+        item.classList.add('active'); // Mark it as active
+      } else {
+        item.style.display = 'none'; // Hide the others
+        item.classList.remove('active');
+      }
+    });
+
+    // Loop through thumbnails to highlight the active one
+    thumbnails.forEach(thumb => {
+      const thumbMediaId = thumb.getAttribute('data-media-id');
+      if (thumbMediaId === mediaId) {
+        thumb.classList.add('active'); // Add active class to the selected thumbnail
+      } else {
+        thumb.classList.remove('active'); // Remove active class from others
+      }
+    });
+  }
+
+  // Handle thumbnail click
+  thumbnails.forEach(thumbnail => {
+    thumbnail.addEventListener('click', function () {
+      const selectedId = this.getAttribute('data-media-id');
+      updateMediaById(selectedId); // Highlight the correct image and thumbnail
+    });
+  });
+
+  // Handle variant change 
+  if (variantSelector) {
+    variantSelector.addEventListener('change', function () {
+      const selectedVariantId = parseInt(this.value);
+      // Assuming productData is available and has variant data
+      const variant = productData.variants.find(v => v.id === selectedVariantId);
+
+      if (variant && variant.featured_media && variant.featured_media.id) {
+        const mediaId = variant.featured_media.id.toString();
+        updateMediaById(mediaId); // Update to the corresponding image
+      }
+    });
+  }
+});
+
+
+</script>
+
+
+

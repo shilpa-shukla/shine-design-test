@@ -10,8 +10,10 @@
 {
   "sections": {
     "main": {
-      "type": "main-account",
-      "settings": {}
+      "type": "custom-featured-product",
+      "settings": {
+        "product": "the-collection-snowboard-liquid"
+      }
     }
   },
   "order": [
